@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.vmgateway.ssl">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:name="BaseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="SSL06"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SSL06">
+
+        <service
+            android:name=".NayaxPaymentService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".MockQRPaymentService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".QRPaymentService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".GCCService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".ItemInfoRequestService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".StockGoodsActivity"/>
+        <activity android:name=".ErrHandlingActivity"/>
+        <activity android:name=".ReplenishActivity"/>
+        <activity android:name=".ListActivity"/>
+        <activity android:name="com.Nayax.NayaxActivity"/>
+        <activity android:name=".LaneActivity"/>
+        <activity android:name=".TopActivity"/>
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/network_security_config"/>
+
+        <activity android:name=".MainActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

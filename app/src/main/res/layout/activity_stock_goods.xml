@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:id="@+id/Vlayout"
+        android:layout_width="1000px"
+        android:layout_height="1200px"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/partsdesign"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/maxbtn">
+
+        <LinearLayout
+            android:id="@+id/layoutL1"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal" />
+
+        <LinearLayout
+            android:id="@+id/layoutL2"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutL3"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutL4"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutL5"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutL6"
+            android:layout_width="match_parent"
+            android:layout_height="200px"
+            android:orientation="horizontal"></LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sendbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="決定"
+        app:layout_constraintEnd_toEndOf="@+id/Vlayout"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/maxbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:text="最大"
+        app:layout_constraintEnd_toStartOf="@+id/sendbtn"
+        app:layout_constraintTop_toTopOf="@+id/sendbtn" />
+
+</android.support.constraint.ConstraintLayout>
+
+

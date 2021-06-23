@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <LinearLayout
+        android:id="@+id/errlist"
+        android:layout_width="900px"
+        android:layout_height="800px"
+        android:layout_marginTop="180dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="払出エラー"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="#FFEB3B" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textstr2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="#FFEB3B"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/errlist" />
+
+    <Button
+        android:id="@+id/backbutton2"
+        android:layout_width="600px"
+        android:layout_height="300px"
+        android:background="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/errlist"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</android.support.constraint.ConstraintLayout>

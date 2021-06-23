@@ -1,0 +1,179 @@
+package com.Nayax;
+
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+//VMC FreezerTest
+public class MainActivity extends AppCompatActivity implements NayaxSerialPortCallback {
+    public static final String TAG = MainActivity.class.getSimpleName();
+
+    //SerialPortSDK spsdk;
+    NayaxSerialPort nayax;
+
+    Button InitBtn;
+    Button EnableBtn;
+    Button MdbBtn;
+    Button DisableBtn;
+    Button CardBtn;
+    Button CardPay1Btn;
+    Button CardPayResultBtn;
+    Button CardPayResultSendBtn;
+    Button CardCancelBtn;
+
+    ArrayList<Button> buttonList = new ArrayList<>();
+
+    public int Lane = 8;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        InitBtn = findViewById(R.id.Init);
+        InitBtn.setBackgroundColor(Color.parseColor("#afeeee"));
+        InitBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Init が押されました\n");
+                TextView textview = findViewById(R.id.textView);
+                textview.setText("Init が押されました\n");
+                nayax.Init();
+            }
+        });
+        EnableBtn = findViewById(R.id.Enable);
+        EnableBtn.setBackgroundColor(Color.parseColor("#66cdaa"));
+        EnableBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Enable が押されました\n");
+               TextView textview = findViewById(R.id.textView);
+                textview.setText("Enable が押されました\n");
+                nayax.Enable();
+            }
+        });
+
+        MdbBtn = findViewById(R.id.MDB);
+        MdbBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"MdbBoardQuery が押されました");
+                TextView textview = findViewById(R.id.textView);
+                textview.setText("MdbBoardQuery が押されました\n");
+                nayax.MdbBoardQuery();
+            }
+        });
+        DisableBtn = findViewById(R.id.Disable);
+        DisableBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Disable が押されました");
+                TextView textview = findViewById(R.id.textView);
+                textview.setText("Disable が押されました\n");
+                nayax.Disable();
+            }
+        });
+        CardBtn = findViewById(R.id.Card1);
+        CardBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"CardQuery が押されました");
+                TextView textview = findViewById(R.id.textView);
+                textview.setText("CardQuery が押されました\n");
+                nayax.CardReaderQuery();
+            }
+        });
+        //spsdk = new SerialPortSDK(this, null);
+        //spsdk.setCallback(this);
+        nayax = new NayaxSerialPort(this );
+        nayax.setCallback( this );
+        nayax.threadStart();
+    }
+    @Override
+    public void NayaxDeviceConditionChanged(NayaxResult result) {
+        TextView tv = (TextView) findViewById(R.id.textView);
+        //
+        if( result.getMT() == 0x91 && result.getOPE() == 0x01 ) {
+            String m = "Status changed  Card Enable " + result.getCardEnable() + " Card Error " + result.getCardError() + " Card Cost " + result.getCardCost();
+            tv.append( m +"\n");
+            Log.i( TAG, m );
+        }
+        else {
+            String m ="Illegal parameter MT -> "+ result.getMT() +" OPE -> "+ result.getOPE();
+            tv.append( m +"\n");
+            Log.e( TAG, m );
+        }
+    }
+
+    @Override
+    public void NayaxCommanExecuted(NayaxResult result) {
+        TextView tv = (TextView)findViewById(R.id.textView);
+        //
+        int mt = result.getMT();
+        int ope = result.getOPE();
+        //
+        switch ( mt ){
+            case 0x91:
+                switch ( ope ){
+                    case  0x01:
+                        // ハートビート
+                        Log.e(TAG, "illegal ope "+ ope );
+                        break;
+                    case 0:
+                    case 0x04:
+                        // MDBデバイス情報
+                        String m0 = "MDB Serial Number " + result.getmDBdeviceSerial() + "  Version " + result.getmDBdeviceVersion();
+                        tv.append( m0 +"\n");
+                        Log.i( TAG, m0 );
+                        break;
+                    case 0x06:
+                        // カードリーダー情報
+                        String m1 ="CardReader Type " + result.getCardType() + "  Serial Number " + result.getCardSerial()
+                                + "  Model Number" + result.getCardModelNumber() +"  Version " + result.getCardVervion()
+                                + "  Maker " + result.getCardMaker();
+                        tv.append( m1 +"\n");
+                        Log.i( TAG, m1 );
+                        break;
+                    default:
+                        Log.e(TAG, "illegal ope "+ ope );
+                }
+                break;
+            case 0x92:
+                // コマンド実行結果
+                switch ( ope ) {
+                    case 0x01:
+                        // 初期化
+                    case 0x02:
+                        // 許可/禁止
+                    case 0x0a:
+                        // カードリーダー料金設定 ?
+                    case 0x0c:
+                        // カードリーダー出金
+                    case 0x0e:
+                        // カードリーダー支払キャンセル
+                        String m0 = "Command Result " + result.getCardReaderAck();
+                        tv.append( m0 +"\n");
+                        Log.i( TAG, m0 );
+                        break;
+                    case 0x0b:
+                        // カードリーダー料金照会
+                        String m1 = "Command Result " + result.getCardReaderAck() + "  CardReader Cabinet " + result.getCardCabinet()
+                                +"  Lane " + result.getCardLane() +"  Status " + result.getCardStatus();
+                        tv.append( m1 +"\n");
+                        Log.i( TAG, m1 );
+                        break;
+                    default:
+                        Log.e(TAG, "illegal ope "+ ope );
+                }
+                break;
+            default:
+                Log.e(TAG, "illegal MT "+ mt );
+        }
+    }
+}

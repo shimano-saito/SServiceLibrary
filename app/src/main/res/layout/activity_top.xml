@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".TopActivity">
+
+    <Button
+        android:id="@+id/stocGoodsbtn"
+        android:layout_width="400px"
+        android:layout_height="200px"
+        android:layout_marginTop="100dp"
+        android:text="商品補充"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/listbtn"
+        android:layout_width="400px"
+        android:layout_height="200px"
+        android:layout_marginTop="50dp"
+        android:text="商品一覧"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stocGoodsbtn" />
+
+    <Button
+        android:id="@+id/lanebtn"
+        android:layout_width="400px"
+        android:layout_height="200px"
+        android:layout_marginTop="50dp"
+        android:text="レーン一動作テスト"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listbtn" />
+
+</android.support.constraint.ConstraintLayout>

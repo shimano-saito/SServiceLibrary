@@ -1,0 +1,6 @@
+package com.Nayax;
+
+public interface NayaxSerialPortCallback {
+    void NayaxDeviceConditionChanged( NayaxResult result );
+    void NayaxCommanExecuted( NayaxResult result );
+}

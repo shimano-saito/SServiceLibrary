@@ -1,0 +1,287 @@
+package com.Nayax;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import android_serialport_api.SerialPort;
+
+public class NayaxSerialPort {
+    private static final String TAG = NayaxSerialPort.class.getSimpleName();
+
+    private Context mContext;
+    private NayaxSerialPortCallback mCallback;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final List<NayaxPacket> mSerialMessageList = new ArrayList<NayaxPacket>();
+
+    private SerialPort mSerialPort = null;
+    private OutputStream mOutputStream = null;
+    private InputStream mInputStream = null;
+    private WriteThread writeThread = null;
+
+    public NayaxSerialPort( Context context ) {
+        Log.d(TAG,"Nayax debug core-serial type is JP");
+        this.mContext = context;
+        if (mSerialPort == null) {
+            try {
+                mSerialPort = getSerialPort();
+            } catch (InvalidParameterException e) {
+                Log.d(TAG, "InvalidParameterException");
+            } catch (SecurityException e) {
+                Log.d(TAG, "SecurityException");
+            } catch (IOException e) {
+                Log.d(TAG, "IOException");
+            }
+        }
+        try {
+            mOutputStream = mSerialPort.getOutputStream();
+            mInputStream = mSerialPort.getInputStream();
+        } catch (SecurityException e) {
+            Log.d(TAG, "SecurityException");
+        } catch (InvalidParameterException e) {
+            Log.d(TAG, "InvalidParameterException");
+        }
+
+    }
+    /**
+     * open SerialPort
+     *
+     * @return
+     * @throws SecurityException
+     * @throws IOException
+     * @throws InvalidParameterException
+     */
+    public SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
+        if (mSerialPort == null) {
+            mSerialPort = new SerialPort(new File( NayaxSerialPortConst.PORTTRADE ), NayaxSerialPortConst.DEFINE_BAUDRATE, NayaxSerialPortConst.DEFINE_PARITY);
+        }
+        return mSerialPort;
+    }
+
+    public void setCallback( NayaxSerialPortCallback callback ) {
+        if ( null == callback ) {
+            Log.e( TAG, "callback null" );
+            return;
+        }
+        mCallback = callback;
+    }
+
+    public void threadStart() {
+        try {
+            writeThread = new WriteThread();
+            writeThread.start();
+        } catch (SecurityException e) {
+            Log.d(TAG, "SecurityException");
+        } catch (InvalidParameterException e) {
+            Log.d(TAG, "InvalidParameterException");
+        }
+    }
+    private class WriteThread extends Thread {
+        private final int MAXNUB = 512;
+        private final byte[] mBuffer = new byte[ MAXNUB ];
+        private int mDataLength = 0;
+        private int mIndex = 0;
+
+        @Override
+        public void run() {
+            Log.d(TAG, "VpcSerialSDK ReadThread run");
+            super.run();
+            while ( ! isInterrupted() ) {
+                try {
+                    sleep( 500 );
+                    NayaxPacket send = null;
+                    if( mSerialMessageList.size() > 0 ){
+                        // 送信データ有
+                        send = mSerialMessageList.get( 0 );
+                        mSerialMessageList.remove( 0 );
+                    }
+                    else {
+                        // データがないのでハートビート
+                        send = new NayaxPacket( (byte) 0x21, new byte[]{ 0x01 } );
+                    }
+                    trancateInsupStream();
+                    clearBuffer();
+                    Log.i( TAG, "Nayax send -> "+ send.toString() );
+                    mOutputStream.write( send.getPacketData() );
+                    readAndGo( send );
+                    //
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+        private void readAndGo( NayaxPacket send ){
+            while ( ! isInterrupted() ) {
+                try {
+                    if ( mInputStream.available() <= 0 ) {
+                        // タイムアウトを考慮すべし
+                        sleep( 1 );
+                        continue;
+                    }
+                    // SF
+                    int readed = mInputStream.read();
+                    switch ( mIndex ){
+                        case 0:
+                            // SF
+                            if( readed != NayaxPacket.RecvSF ){
+                                // だめ
+                                Log.e( TAG, "illegal recieve SF -> "+ readed );
+                            }
+                            mBuffer[ mIndex++ ] = (byte) readed;
+                            break;
+                        case 1:
+                            // LEN
+                            if( readed < 5 || 127 < readed ) {
+                                // おかしい
+                                clearBuffer();
+                                Log.e( TAG, "illegal LEN -> "+ readed );
+                                continue;
+                            }
+                            mBuffer[ mIndex++ ] = (byte) readed;
+                            mDataLength = ( readed + 1 );
+                            break;
+                        default:
+                            // ADDR SN MT DATA CRC
+                            mBuffer[ mIndex++ ] = (byte) readed;
+                            //
+                            if( mIndex == mDataLength ){
+                                // 終了
+                                try {
+                                    Parse( send, new NayaxPacket( Arrays.copyOfRange( mBuffer, 0, mDataLength ) ) );
+                                }
+                                catch ( Exception e ) {
+                                    e.printStackTrace();
+                                }
+                                clearBuffer();
+                                return;
+                            }
+                            break;
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        private byte[] heartBreatCondition;
+        private void Parse( final NayaxPacket send, final NayaxPacket recv ){
+            Log.i( TAG, "Nayax recv -> "+ recv.toString() );
+            // エラーチェックいる ??
+            int sendMT = send.getMT();
+            int recvMT = recv.getMT();
+            if( recvMT - sendMT != 0x70 ){
+                // あれれ
+                throw new RuntimeException( "missing recv command "+ ( sendMT + 0x070 ) +" -> "+ recvMT );
+            }
+            if ( recvMT == 0x91 && recv.getData()[ 0 ] == 0x01 ){
+                // ハートビートだ
+                byte[] d = recv.getData();
+                if( !Arrays.equals( d, heartBreatCondition ) ){
+                    // 変化したので通知
+                    heartBreatCondition = d.clone();
+                    final NayaxResult res = new NayaxResult( recv );
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(TAG,"Status changed.");
+                            mCallback.NayaxDeviceConditionChanged( res );
+                        }
+                    } );
+                }
+            }
+            else {
+                //　他通知
+                final NayaxResult res = new NayaxResult( recv );
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.NayaxCommanExecuted( res );
+                    }
+                } );
+            }
+        }
+        private void trancateInsupStream() throws IOException {
+            while ( mInputStream.available() > 0 ){
+                int b = mInputStream.read();
+                Log.d( TAG, String.format("drop data %02x", b ) );
+            }
+        }
+        private void clearBuffer() {
+            for (int i = 0; i < MAXNUB; i++) {
+                mBuffer[i] = 0;
+            }
+            mIndex = 0;
+            mDataLength = 0;
+        }
+    }
+    public void MdbBoardQuery(){
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x21,  new byte[]{ (byte) 0x04 } ) );
+    }
+    public void CardReaderQuery(){
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x21,  new byte[]{ (byte) 0x06 } ) );
+    }
+    public void Init(){
+        // 暫定今回はカードリーダーだけ
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  new byte[]{ (byte) 0x01, (byte) 0x04, (byte) 0x02, (byte) 0x02 } ) );
+    }
+    public void Enable(){
+        // 暫定今回はカードリーダーだけ
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  new byte[]{ (byte) 0x02, (byte) 0x04, (byte) 0x01 } ) );
+    }
+    public void Disable(){
+        // 暫定今回はカードリーダーだけ
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  new byte[]{ (byte) 0x02, (byte) 0x04, (byte) 0x02 } ) );
+    }
+    public void PaymentRequest( byte cab, byte col, int amount ){
+        // 暫定今回はカードリーダーだけ
+        byte[] d = new byte[ 7 ];
+        d[ 0 ] = (byte) 0x0a;
+        d[ 1 ] = cab;
+        d[ 2 ] = col;
+        ByteBuffer bytes = ByteBuffer.allocate( 4 ).putInt( amount );
+        d[ 3 ] = bytes.get( 3 );
+        d[ 4 ] = bytes.get( 2 );
+        d[ 5 ] = bytes.get( 1 );
+        d[ 6 ] = bytes.get( 0 );
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  d ) );
+    }
+    public void PaymentStatus(){
+        // 暫定今回はカードリーダーだけ
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  new byte[]{ (byte) 0x0b } ) );
+    }
+    public void PaymentResult( byte cab, byte col, int amount ){
+        // 暫定今回はカードリーダーだけ
+        byte[] d = new byte[ 7 ];
+        d[ 0 ] = (byte) 0x0c;
+        d[ 1 ] = cab;
+        d[ 2 ] = col;
+        ByteBuffer bytes = ByteBuffer.allocate( 4 ).putInt( amount );
+        d[ 3 ] = bytes.get( 3 );
+        d[ 4 ] = bytes.get( 2 );
+        d[ 5 ] = bytes.get( 1 );
+        d[ 6 ] = bytes.get( 0 );
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22, d ) );
+    }
+    public void PaymentCancel(){
+        // 暫定今回はカードリーダーだけ
+        mSerialMessageList.add( new NayaxPacket( (byte) 0x22,  new byte[]{ (byte) 0x0e } ) );
+    }
+}

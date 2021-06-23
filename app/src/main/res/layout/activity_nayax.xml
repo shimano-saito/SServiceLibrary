@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/CardPay1"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="Card Pay1"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Enable" />
+
+    <Button
+        android:id="@+id/cardResult"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="CardResult"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/CardPay1" />
+
+    <Button
+        android:id="@+id/cardPay2"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="Card Pay2"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/CardPay1"
+        app:layout_constraintTop_toBottomOf="@id/Disable" />
+
+    <Button
+        android:id="@+id/cardCancel"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="CardCancel"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toEndOf="@id/cardResult"
+        app:layout_constraintTop_toBottomOf="@id/cardPay2" />
+
+    <Button
+        android:id="@+id/nextAc"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="32dp"
+        android:text="next Act"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/cardCancel"
+        app:layout_constraintTop_toBottomOf="@id/cardPay2" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:scrollbars="vertical"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardResult" />
+
+    <Button
+        android:id="@+id/Init"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:text="Init"
+        android:textColorLink="#15E4D1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/MDB"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:text="get MDB"
+        app:layout_constraintStart_toEndOf="@+id/Init"
+        app:layout_constraintTop_toTopOf="@+id/Init" />
+
+    <Button
+        android:id="@+id/Card1"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:text="get CARD"
+        app:layout_constraintStart_toEndOf="@id/MDB"
+        app:layout_constraintTop_toTopOf="@+id/Init" />
+
+    <Button
+        android:id="@+id/Enable"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:text="Enable"
+        android:textColorLink="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Init" />
+
+    <Button
+        android:id="@+id/Disable"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:text="Disable"
+        app:layout_constraintStart_toEndOf="@+id/Enable"
+        app:layout_constraintTop_toBottomOf="@+id/MDB" />
+
+    <EditText
+        android:id="@+id/editTextNumber"
+        android:layout_width="240px"
+        android:layout_height="80px"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:ems="10"
+        android:inputType="number"
+        android:visibility="visible"
+        app:layout_constraintStart_toEndOf="@+id/cardPay2"
+        app:layout_constraintTop_toBottomOf="@+id/Disable" />
+
+</android.support.constraint.ConstraintLayout>
