@@ -223,6 +223,7 @@ public class GCCService extends Service implements SerialPortCallback{
     public void serialMachineReset(int res) {
         //1商品ごと結果をactivityに返す
         //払出 res  出荷済:3 ,出荷未了:5 ,出荷取り消し:6
+        Boolean finishFlag = false;
         gccResult = res;
         String strSendServerData = null;
         int failures = 0;
@@ -267,10 +268,12 @@ public class GCCService extends Service implements SerialPortCallback{
                     try{
                         /** UIに送信*/
                         JSONObject sendUiData = new JSONObject();//払出で使用する注文データ
-                        sendUiData.put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
+                        sendUiData
+//                                .put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
                                 .put("itemId",orders.getJSONArray("orders").getJSONObject(0).getInt("itemId"))
                                 .put("laneId",orders.getJSONArray("orders").getJSONObject(0).getInt("laneId"))
-                                .put("result",gccResult);
+                                .put("result",gccResult)
+                                .put("finish",finishFlag);
                         Log.d(TAG, "sendUiData  " + sendUiData.toString());
                         //UIに送信
                         Message sendMsg = Message.obtain(null, s.VENDING );//5 resの部分は内容を示す値がいいかも？払出結果、コマンド結果、終了など
@@ -336,10 +339,12 @@ public class GCCService extends Service implements SerialPortCallback{
 
                     /** UIに送信*/
                     JSONObject sendUiData = new JSONObject();//払出で使用する注文データ
-                    sendUiData.put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
+                    sendUiData
+//                            .put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
                             .put("itemId",orders.getJSONArray("orders").getJSONObject(0).getInt("itemId"))
                             .put("laneId",orders.getJSONArray("orders").getJSONObject(0).getInt("laneId"))
-                            .put("status",gccResult);
+                            .put("status",gccResult)
+                            .put("finish",finishFlag);
                     Log.d(TAG, "sendUiData  " + sendUiData.toString());
                     //UIに送信
                     Message sendMsg = Message.obtain(null, s.VENDING );//5 resの部分は内容を示す値がいいかも？払出結果、コマンド結果、終了など
@@ -352,12 +357,12 @@ public class GCCService extends Service implements SerialPortCallback{
                         e.printStackTrace();
                     }
 
-                    gccResult = DEFAULT;//
+//                    gccResult = DEFAULT;//
 
                     /** service appにerr保存*/
                     resultJdonArray.put(new JSONObject()
                             .put("tradeItemId", orders.getJSONArray("orders").getJSONObject(0).getInt("tradeItemId"))
-                            .put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
+//                            .put("name",orders.getJSONArray("orders").getJSONObject(0).getString("name"))
                             .put("itemId", orders.getJSONArray("orders").getJSONObject(0).getInt("itemId"))
                             .put("price", orders.getJSONArray("orders").getJSONObject(0).getInt("price"))
                             .put("laneId", orders.getJSONArray("orders").getJSONObject(0).getInt("laneId"))
@@ -402,8 +407,6 @@ public class GCCService extends Service implements SerialPortCallback{
                                     }
                                     Log.d(TAG, "Finish  " + sendFinishMsg.what);
                                 }
-
-
 
                             }catch (Exception e) {
                                 e.printStackTrace();

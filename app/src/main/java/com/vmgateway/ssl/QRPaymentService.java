@@ -146,23 +146,36 @@ public class QRPaymentService extends Service {
                             @Override
                             public void CallBack(String qrResult) {
                                 super.CallBack(qrResult);
+                                /** 修正　Serviceでのerr HTTP通信コードをUIに渡すのを追加 */
                                 //データ取得後
                                 //サーバー空の結果はresultに文字列で返ってくる
                                 Log.d(TAG, "QRPayRequest Finish  OK");
                                 Log.d(TAG, "qrResult  " + qrResult);//受信データ String
 
-                                /** 払出で使用するserviceOrder作成 */
-                                try {
-                                    JSONObject jsonResult = new JSONObject(qrResult);//決済結果
-                                    JSONObject serviceOrders = new JSONObject();//払出で使用する注文データ
 
-                                    //tradeId,tradeItemIdを追加する
-                                    for(int i = 0; i < myService.myServiceOrders.length(); i++){
-                                        myService.myServiceOrders.getJSONObject(i).put("tradeItemId",jsonResult
-                                                .getJSONArray("orders")
-                                                .getJSONObject(i)
-                                                .getInt("tradeItemId"));
+                                int status = 0;
+
+                                try {
+                                    JSONObject jsonResult;
+                                    if(qrResult == null) {
+                                        //サーバーからの結果得られない　サーバー通信エラー 正しく通信できていない
+                                        jsonResult = new JSONObject().put("result",false);
+                                        status = 1;
+
+                                    }else{
+                                        //サーバーからの結果
+                                        jsonResult = new JSONObject(qrResult);//決済結果
+
+                                        //tradeId,tradeItemIdを追加する
+                                        for(int i = 0; i < myService.myServiceOrders.length(); i++){
+                                            myService.myServiceOrders.getJSONObject(i).put("tradeItemId",jsonResult
+                                                    .getJSONArray("orders")
+                                                    .getJSONObject(i)
+                                                    .getInt("tradeItemId"));
+                                        }
                                     }
+                                    /** 払出で使用するserviceOrder作成 */
+                                    JSONObject serviceOrders = new JSONObject();//払出で使用する注文データ
 //                                    serviceOrders.put("tradeId",jsonResult.getInt("tradeId"))
                                     serviceOrders.put("orders",myService.myServiceOrders);
 
@@ -173,9 +186,9 @@ public class QRPaymentService extends Service {
                                     e.printStackTrace();
                                 }
 */
-                                /** 決済結果をUIに送る */
+                                    /** 決済結果をUIに送る */
 //                                try {
-                                    JSONObject sendUiData = new JSONObject().put("result",jsonResult.getBoolean("result"));
+                                    JSONObject sendUiData = new JSONObject().put("result",jsonResult.getBoolean("result")).put("status",status);
                                     Message msg2 = Message.obtain(null, myService.s.QR_PAY);//2
                                     Bundle bundle = new Bundle();
                                     bundle.putString("result",sendUiData.toString());

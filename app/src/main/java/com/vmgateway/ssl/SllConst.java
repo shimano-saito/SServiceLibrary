@@ -16,6 +16,9 @@ public class SllConst {
 //    String u = "http://52.197.207.196/SaitouAndroidTest/token";//テストサーバー
 //    String uItems = "http://52.197.207.196/SaitouAndroidTest/api/v2/data/Items/5";//テストサーバー
 //    String uLanes = "http://52.197.207.196/SaitouAndroidTest/api/v2/data/Lanes/5";//テストサーバー
+    /**設定ファイル　path*/
+    public static final String SETTING_PATH = "/DCIM/PicAD/VenderSetting.json";
+
     /**レーン設定*/
     public static int LANE_MAX = 8;//キャビネットの最大レーン数
 

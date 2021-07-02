@@ -67,24 +67,24 @@ public class ItemInfoRequestService extends Service {
             ItemInfoRequestService myService = (ItemInfoRequestService)refContext.get();
             myService.mSelfMessenger=msg.replyTo;
 
-
+/*
             setting = myService.settingCheck();//settingファイルがあるか確認、ない場合は作成する
             if( setting == null){
                 //settingChack err
                 Log.d(TAG, "settingCheck err");
             }
-
-            try {
+*/
+ //           try {
                 //applicationにvmId　password　vmPasswordをセット
-                myService.app.setVmId(setting.getString("vmId"));
-                myService.app.setPassword(setting.getString("password"));
-                myService.app.setVmPassword(setting.getString("vmPassword"));
+//                myService.app.setVmId(setting.getString("vmId"));
+//                myService.app.setPassword(setting.getString("password"));
+//                myService.app.setVmPassword(setting.getString("vmPassword"));
 
                 Log.d(TAG, "setting 　" +" vmId: "+ myService.app.getVmId() + ", password: "  + myService.app.getPassword() + ", vmPassword: " + myService.app.getVmPassword());
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+//            } catch (JSONException e) {
+ //               e.printStackTrace();
+//            }
 
             try {
                 //Thread.sleep(1000);
@@ -172,6 +172,7 @@ public class ItemInfoRequestService extends Service {
     public void onCreate() {
         Log.d(TAG, "onCreate()");
 
+
         //Timer timer = new Timer();
         /*
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -202,6 +203,11 @@ public class ItemInfoRequestService extends Service {
         s = new SllConst();
         app = (BaseApplication)getApplication();
         app.setServiceResult(null);//払出err 初期化
+
+
+        app.setPassword("password");
+        app.setVmId("VM0001");
+        app.setVmPassword("VM0001");
 
         return mServiceMessenger.getBinder();
     }

@@ -66,15 +66,29 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
         }
         Log.d(TAG,"QRPayRequest token  " + token);//取得したtoken log
         Log.d(TAG,"sendData  " + sendData);//
-        //QR 決済リクエスト
-        try{
-            //送信するbody追加する
-            receiveData = GetDataStream( token, url,sendData);
 
+        //QR 決済リクエスト
+        try {
+            receiveData = GetDataStream( token, url,sendData);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        /*
+        try{
+            for(int i = 0 ; i < 2 ; i++){
+                //送信するbody追加する
+                receiveData = GetDataStream( token, url,sendData);
+                if(receiveData == null){
+                    token = GetToken();
+                    Log.d(TAG,"retry token" + token);//取得したtoken log
+                }else{
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
         Log.d(TAG,"receiveData  " + receiveData);//
 
         return receiveData;
@@ -88,6 +102,7 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
         String key = "grant_type=password&username=VM0001&password=VM0001";//本番テスト name,passwordは自販機枚に違う
 
         final int TIMEOUT_MILLIS = 10000;
+        int responseCode = 0;
 
         final StringBuffer sb = new StringBuffer("");
         HttpURLConnection httpConn = null;
@@ -116,7 +131,7 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
             ps.print(key);
             ps.close();
 
-            final int responseCode = httpConn.getResponseCode();
+            responseCode = httpConn.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 //データ取得成功
@@ -164,12 +179,16 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
                 httpConn.disconnect();
             }
         }
+
+//        Integer res = Integer.valueOf(responseCode);
+//        return res.toString();//HTTP コードをStringで返す
         return (null);//NG
     }
 
     private static String GetDataStream(String token, String u,String data) throws IOException {
         String encoding = "UTF-8";
         final int TIMEOUT_MILLIS = 10000;
+        int responseCode = 0;
 
         final StringBuffer sb = new StringBuffer("");
         HttpURLConnection httpConn = null;
@@ -200,7 +219,7 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
             ps.print(data);
             ps.close();
 
-            final int responseCode = httpConn.getResponseCode();
+            responseCode = httpConn.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
@@ -216,7 +235,7 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
                 return (sb.toString());
             } else {
                 // If responseCode is not HTTP_OK
-                Log.d("connect", "responseCode = " + responseCode);
+                Log.d("GetDataStream", "responseCode = " + responseCode);
             }
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -247,7 +266,8 @@ public class PaymentRequest extends AsyncTask<String, Void, String> {
                 httpConn.disconnect();
             }
         }
-
+//        Integer res = Integer.valueOf(responseCode);
+//        return res.toString();//HTTP コードをStringで返す
         return null;
     }
     //非同期処理終了後　結果をメインスレッドに返す

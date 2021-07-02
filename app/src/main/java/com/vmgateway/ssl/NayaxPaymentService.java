@@ -80,7 +80,7 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
     public void NayaxCommanExecuted(NayaxResult result) {
         int mt = result.getMT();
         int ope = result.getOPE();
-        Message sendFinishMsg = null;
+//        Message sendFinishMsg = null;
         Message sendResultMsg = null;
         boolean nayaxResult;
 
@@ -134,12 +134,16 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                         if(result.getCardMaker().equals(0)){
                             //MDB_CARD_COST_REQ 受付失敗
                             Log.d(TAG, "MDB_CARD_COST_REQ 受付失敗");
-                            sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                             Log.d(TAG, "sendFinishMsg()");
 
                             try {
-                                mSelfMessenger.send(sendFinishMsg);
-                            } catch (RemoteException e) {
+                                sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                JSONObject sendUiData = new JSONObject().put("result",false).put("status",11);//MDB_CARD_COST_REQ受付失敗
+                                Bundle bundle = new Bundle();
+                                bundle.putString("result",sendUiData.toString());
+                                sendResultMsg.setData(bundle);
+                                mSelfMessenger.send(sendResultMsg);
+                            } catch (RemoteException | JSONException e) {
                                 e.printStackTrace();
                             }
                         }else{
@@ -173,14 +177,22 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                             //MDB_CARD_VEND_RES_REQ 受付失敗
                             /**Nayax故障の場合に入る*/
                             Log.d(TAG,"Nayax故障の可能性 ");
-                            sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);////0x0a
+
+
+//                            sendFinishMsg = Message.obtain(null, s.NAYAX_RESULT);////0x0a
                             Log.d(TAG, "sendFinishMsg()");
                             try {
-                                mSelfMessenger.send(sendFinishMsg);
-                            } catch (RemoteException e) {
+                                sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                JSONObject sendUiData = new JSONObject().put("result",false).put("status",12);//MDB_CARD_VEND_RES_REQ失敗(Nayax故障の可能性)
+                                Bundle bundle = new Bundle();
+                                bundle.putString("result",sendUiData.toString());
+                                sendResultMsg.setData(bundle);
+                                mSelfMessenger.send(sendResultMsg);
+//                                mSelfMessenger.send(sendFinishMsg);
+                            } catch (RemoteException | JSONException e) {
                                 e.printStackTrace();
                             }
-                            Log.d(TAG, "Finis  " + sendFinishMsg.what);
+                            Log.d(TAG, "Finish  " + sendResultMsg.what);
 
                         }else{
                             //Nayax結果 成功
@@ -210,9 +222,19 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                                     Log.d(TAG, "NayaxPayRequest Finish  OK");
                                     Log.d(TAG, "receiveResult  " + receiveResult);
 
+                                    int status = 0;
                                     /** 払出で使用するserviceOrder作成 */
                                     try {
-                                        JSONObject jsonResult = new JSONObject(receiveResult);//決済結果 サーバーからのresult ※nullで落ちる
+                                        JSONObject jsonResult;
+                                        if(receiveResult == null) {
+                                            jsonResult = new JSONObject().put("result",false);
+                                            status = 1;
+                                        }else{
+                                            jsonResult = new JSONObject(receiveResult);//決済結果
+
+                                        }
+
+//                                        JSONObject jsonResult = new JSONObject(receiveResult);//決済結果 サーバーからのresult ※nullで落ちる
                                         JSONObject serviceOrders = new JSONObject();//払出で使用する注文データ
 
                                         //tradeId,tradeItemIdを追加する
@@ -229,7 +251,7 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                                         Log.d(TAG, "serviceOrders : " + serviceOrders.toString());
 
                                     /** 決済結果をUIに送る */
-                                        JSONObject sendUiData = new JSONObject().put("result",jsonResult.getBoolean("result"));
+                                        JSONObject sendUiData = new JSONObject().put("result",jsonResult.getBoolean("result")).put("status",status);
                                         Message msg2 = Message.obtain(null, s.NAYAX_RESULT);//4
                                         Bundle bundle = new Bundle();
                                         bundle.putString("result",sendUiData.toString());
@@ -283,14 +305,20 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                         Log.i( TAG, m0 );
 
                         /** UIにキャンセル受付　送信 */
-                        sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
+    //                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                         Log.d(TAG, "sendFinishMsg()");
                         try {
-                            mSelfMessenger.send(sendFinishMsg);
-                        } catch (RemoteException e) {
+                            sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                            JSONObject sendUiData = new JSONObject().put("result",false).put("status",13);//Nayaxから支払いキャンセル(取引失敗、故障、残高不足など)
+                            Bundle bundle = new Bundle();
+                            bundle.putString("result",sendUiData.toString());
+                            sendResultMsg.setData(bundle);
+                            mSelfMessenger.send(sendResultMsg);
+    //                        mSelfMessenger.send(sendFinishMsg);
+                        } catch (RemoteException | JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.d(TAG, "Finis  " + sendFinishMsg.what);
+                        Log.d(TAG, "Finis  " + sendResultMsg.what);
 
                         break;
                     case 0x0b:
@@ -350,11 +378,17 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                                     Log.d(TAG, "START_STATE" + "result" + result.getCardStatus() );
                                     //ここに入らないはずなので終了させる
                                     //UIにカードキャンセル 送信
-                                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
+    //                                sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                                     Log.d(TAG, "sendFinishMsg()");
                                     try {
-                                        mSelfMessenger.send(sendFinishMsg);
-                                    } catch (RemoteException e) {
+                                        sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                        JSONObject sendUiData = new JSONObject().put("result",false).put("status",14);//ServiceStatusエラー(ここには入らない、取引無し)
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("result",sendUiData.toString());
+                                        sendResultMsg.setData(bundle);
+                                        mSelfMessenger.send(sendResultMsg);
+    //                                    mSelfMessenger.send(sendFinishMsg);
+                                    } catch (RemoteException | JSONException e) {
                                         e.printStackTrace();
                                     }
                                 }else{
@@ -371,11 +405,17 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                                     Log.d(TAG, "START_STATE" + "result" + result.getCardStatus() );
                                     //ここに入らないはずなので終了させる
                                     //UIにカードキャンセル 送信
-                                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
+//                                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                                     Log.d(TAG, "sendFinishMsg()");
                                     try {
-                                        mSelfMessenger.send(sendFinishMsg);
-                                    } catch (RemoteException e) {
+                                        sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                        JSONObject sendUiData = new JSONObject().put("result",false).put("status",15);//ServiceStatusエラー(ここには入らない、取引中)
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("result",sendUiData.toString());
+                                        sendResultMsg.setData(bundle);
+                                        mSelfMessenger.send(sendResultMsg);
+//                                        mSelfMessenger.send(sendFinishMsg);
+                                    } catch (RemoteException | JSONException e) {
                                         e.printStackTrace();
                                     }
                                 }else if(state == CARD_TOUCH_STATE){
@@ -413,20 +453,32 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                                     //ユーザーによる端末キャンセル
                                     //UIにカードキャンセル 送信
 //                                    writeThread.interrupt();
-                                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
+            //                        sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                                     Log.d(TAG, "sendFinishMsg　ユーザーによるキャンセル,タイムアウト");
                                     try {
-                                        mSelfMessenger.send(sendFinishMsg);
-                                    } catch (RemoteException e) {
+                                        sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                        JSONObject sendUiData = new JSONObject().put("result",false).put("status",16);//ユーザーによるキャンセル、Nayaxタイムアウト(取引完了)
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("result",sendUiData.toString());
+                                        sendResultMsg.setData(bundle);
+                                        mSelfMessenger.send(sendResultMsg);
+            //                            mSelfMessenger.send(sendFinishMsg);
+                                    } catch (RemoteException | JSONException e) {
                                         e.printStackTrace();
                                     }
                                 } else if(state == CARD_TOUCH_STATE) {
                                     //カードタッチ
-                                    sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
+            //                        sendFinishMsg = Message.obtain(null, s.NAYAX_CANCEL);//0x0a
                                     Log.d(TAG, "sendFinishMsg() カードNG");
                                     try {
-                                        mSelfMessenger.send(sendFinishMsg);
-                                    } catch (RemoteException e) {
+                                        sendResultMsg = Message.obtain(null, s.NAYAX_RESULT);//0x0a
+                                        JSONObject sendUiData = new JSONObject().put("result",false).put("status",17);//15:ServiceStatusエラー(ここには入らない、取引完了)
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("result",sendUiData.toString());
+                                        sendResultMsg.setData(bundle);
+                                        mSelfMessenger.send(sendResultMsg);
+           //                             mSelfMessenger.send(sendFinishMsg);
+                                    } catch (RemoteException | JSONException e) {
                                         e.printStackTrace();
                                     }
                                 }
@@ -553,6 +605,10 @@ public class NayaxPaymentService extends Service implements NayaxSerialPortCallb
                         }
                     }
                 });
+            }else if(msg.what == myService.s.NAYAX_RESULT){//4
+                //UIへのNayax準備OKに対しての応答 特に何もしていない
+
+
             }else if(msg.what == myService.s.NAYAX_CANCEL) {//0x0a
                 /** 自販機からはキャンセルしない　キャンセル処理*/
 //                myService.nayax.PaymentCancel();

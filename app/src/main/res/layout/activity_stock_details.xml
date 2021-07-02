@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="600px"
+        android:layout_height="600px"
+        android:layout_marginTop="100dp"
+        android:background="#ffefd5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textname"
+        android:layout_width="0dp"
+        android:layout_height="200px"
+        android:text="name"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toTopOf="@+id/view" />
+
+    <TextView
+        android:id="@+id/textlane"
+        android:layout_width="0dp"
+        android:layout_height="100px"
+        android:text="lane"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toBottomOf="@+id/textitemid" />
+
+    <TextView
+        android:id="@+id/textamount"
+        android:layout_width="wrap_content"
+        android:layout_height="200px"
+        android:gravity="center"
+        android:text="10"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toBottomOf="@+id/textlane" />
+
+    <ImageView
+        android:id="@+id/minus"
+        android:layout_width="140px"
+        android:layout_height="200px"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toBottomOf="@+id/textlane"
+        app:srcCompat="@drawable/ic_minus" />
+
+    <ImageView
+        android:id="@+id/plus"
+        android:layout_width="140px"
+        android:layout_height="200px"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintTop_toBottomOf="@+id/textlane"
+        app:srcCompat="@drawable/ic_plus" />
+
+    <TextView
+        android:id="@+id/textitemid"
+        android:layout_width="0dp"
+        android:layout_height="100px"
+        android:text="itemid"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toBottomOf="@+id/textname" />
+</android.support.constraint.ConstraintLayout>

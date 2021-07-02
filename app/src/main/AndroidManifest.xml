@@ -10,11 +10,15 @@
         android:name="BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="SSL06"
+        android:label="SServiceLibrary"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SSL06">
+        android:theme="@style/Theme.SServiceLibrary">
 
+        <service
+            android:name=".VmHeartBeatService"
+            android:enabled="true"
+            android:exported="true" />
         <service
             android:name=".NayaxPaymentService"
             android:enabled="true"
@@ -36,11 +40,11 @@
             android:enabled="true"
             android:exported="true" />
 
+        <activity android:name=".StockDetailsActivity"/>
         <activity android:name=".StockGoodsActivity"/>
         <activity android:name=".ErrHandlingActivity"/>
         <activity android:name=".ReplenishActivity"/>
         <activity android:name=".ListActivity"/>
-        <activity android:name="com.Nayax.NayaxActivity"/>
         <activity android:name=".LaneActivity"/>
         <activity android:name=".TopActivity"/>
         <meta-data

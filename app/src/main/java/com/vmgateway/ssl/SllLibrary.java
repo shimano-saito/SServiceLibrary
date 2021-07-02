@@ -60,7 +60,7 @@ public class SllLibrary {
                         if(largeAmount == uiOrder.getJSONObject(i).getJSONArray("laneItems").getJSONObject(x).getInt("spareAmount")){
                             //在庫多数があった
                             newArrayOrders.put(new JSONObject()
-                                    .put("name",uiOrder.getJSONObject(i).getString("name"))
+//                                    .put("name",uiOrder.getJSONObject(i).getString("name"))
                                     .put("itemId",uiOrder.getJSONObject(i).getInt("itemId"))
                                     .put("price",uiOrder.getJSONObject(i).getInt("price"))
                                     .put("laneId",uiOrder.getJSONObject(i).getJSONArray("laneItems").getJSONObject(x).getInt("laneId"))//払出laneId確定

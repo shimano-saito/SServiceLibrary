@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.Nayax.NayaxActivity;
+//import com.Nayax.NayaxActivity;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Log:MainActivity";
@@ -73,14 +73,27 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }else if(nayax.equals(editText)){
+                /*
                     Log.d(TAG, "nayax モード");
                     Intent intent = new Intent(getApplicationContext(), NayaxActivity.class);
                     startActivity(intent);
-
+*/
                 }else{
                     textView.setText("passwordが違います");
                     Log.d(TAG, "passwordが違います");
                 }
+
+
+            }
+        });
+
+        Button mypass = findViewById(R.id.mypass);
+        mypass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), TopActivity.class);
+                startActivity(intent);
+
             }
         });
 

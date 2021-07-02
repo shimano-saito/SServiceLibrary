@@ -9,6 +9,8 @@ import com.smn.main.serverdata.Items;
 import com.smn.main.serverdata.Lanes;
 import com.smn.main.serverdata.MyToken;
 */
+import com.vmgateway.model.FileModel;
+
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,13 +60,24 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
 
         SllConst s = new SllConst();
 
-        /**トークン取得*/
-        String pass = myApp.getPassword();
-        String vmId = myApp.getVmId();
-        String key = "grant_type="+pass+"&username="+vmId+"&password="+vmId;
-        Log.d(TAG, "grant_type="+pass+"&username="+vmId+"&password="+vmId);
+        /**password id取得*/
+//        String pass = myApp.getPassword();
+//        String vmId = myApp.getVmId();
+//        String key = "grant_type="+pass+"&username="+vmId+"&password="+vmId;
+//        Log.d(TAG, "grant_type="+pass+"&username="+vmId+"&password="+vmId);
 //        String key = "grant_type=password&username=VM0001&password=VM0001";//本番テスト name,passwordは自販機枚に違う
+
+        String text = FileModel.GetFileData( s.SETTING_PATH);
         try {
+            JSONObject jo = new JSONObject(text);
+            Log.d(TAG, "&username="+jo.getString("username")+"&password="+jo.getString("password"));
+            String key = "grant_type=password"+"&username="+jo.getString("username")+"&password="+jo.getString("password");
+
+//        SettingModel setting =  gson.fromJson( text, SettingModel.class );
+            Log.d(TAG,"settingFile : " + text);
+//        Log.d(TAG, "&username="+setting.getUsername()+"&password="+setting.getPassword());
+
+
             jsonToken = new JSONObject(GetToken(key));
             token = jsonToken.getString("access_token");
             Log.d(TAG, token);//取得したtoken log
@@ -105,7 +118,7 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
         String encoding = "UTF-8";
 
         final int TIMEOUT_MILLIS = 10000;
-
+        int responseCode;
         final StringBuffer sb = new StringBuffer("");
         HttpURLConnection httpConn = null;
         BufferedReader br = null;
@@ -137,7 +150,8 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
             ps.print(key);
             ps.close();
 
-            final int responseCode = httpConn.getResponseCode();
+//            final int responseCode = httpConn.getResponseCode();
+            responseCode = httpConn.getResponseCode();
             Log.d(TAG, "responseCode  " + responseCode);
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 //データ取得成功
@@ -194,6 +208,7 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
     private static String GetDataStream(String token, String u) throws IOException {
         String encoding = "UTF-8";
         final int TIMEOUT_MILLIS = 10000;
+        int responseCode = 0;
 
         final StringBuffer sb = new StringBuffer("");
         HttpURLConnection httpConn = null;
@@ -214,8 +229,8 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
             httpConn.setRequestProperty("Authorization", "Bearer "+token);
             httpConn.connect();
 
-            final int responseCode = httpConn.getResponseCode();
-
+//            final int responseCode = httpConn.getResponseCode();
+            responseCode = httpConn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
                 is = httpConn.getInputStream();
@@ -261,8 +276,9 @@ public class AsyncHttpRequest extends AsyncTask<String, Void, String> {
                 httpConn.disconnect();
             }
         }
-
         return null;
+//        Integer res = Integer.valueOf(responseCode);
+//        return res.toString();//HTTP コードをStringで返す
     }
     //非同期処理終了後　結果をメインスレッドに返す
     @Override

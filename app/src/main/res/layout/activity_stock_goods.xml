@@ -11,7 +11,6 @@
         android:layout_width="1000px"
         android:layout_height="1200px"
         android:layout_marginTop="50dp"
-        android:background="@drawable/partsdesign"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
